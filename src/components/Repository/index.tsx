@@ -13,10 +13,11 @@ interface Item {
 
 interface RepositoryProps {
   data: Item;
-  onRefresh: () => Promise<void>;
-  onRemove: () => Promise<void>;
+  onRefresh: () => void;
+  onRemove: () => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function Repository({data, onRefresh, onRemove}: RepositoryProps) {
   return (
     <View style={styles.container}>
@@ -35,9 +36,9 @@ export function Repository({data, onRefresh, onRemove}: RepositoryProps) {
           <Text style={styles.refreshButtonText}>Atualizar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={onRemove} style={styles.removeButton}>
+        {/* <TouchableOpacity onPress={onRemove} style={styles.removeButton}>
           <Text style={styles.removeButtonText}>Remover</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

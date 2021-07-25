@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-boolean-cast */
 /* eslint-disable react-native/no-inline-styles */
 
 import React, {useEffect, useState} from 'react';
@@ -42,6 +43,14 @@ export function Home() {
 
   const [repositories, setRepositories] = useState<Repository[]>([]);
 
+  async function loadRepositories() {
+    const realm = await getRelm();
+
+    const data = realm.objects('Repository').sorted('stars', true) as unknown;
+
+    setRepositories(data as Repository[]);
+  }
+
   async function deleteRepository(repository: Repository) {
     const realm = await getRelm();
 
@@ -64,7 +73,7 @@ export function Home() {
 
     realm.write(() => {
       // @ts-ignore
-      realm.create('Repository', data);
+      realm.create('Repository', data, 'modified');
     });
 
     return data;
@@ -108,25 +117,18 @@ export function Home() {
     setRepositories(newRepositories);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function handleRemoveRepository(repository: Repository) {
-    await deleteRepository(repository);
-
     const newRepositories = repositories.filter(
-      repo => repo.id === repository.id,
+      repo => repo.id !== repository.id,
     );
 
     setRepositories(newRepositories);
+
+    await deleteRepository(repository);
   }
 
   useEffect(() => {
-    async function loadRepositories() {
-      const realm = await getRelm();
-
-      const data = realm.objects('Repository').sorted('stars', true) as unknown;
-
-      setRepositories(data as Repository[]);
-    }
-
     loadRepositories();
   }, []);
 
@@ -157,6 +159,12 @@ export function Home() {
         </TouchableOpacity>
       </View>
 
+      {!Boolean(repositories.length > 0) && (
+        <View style={styles.list}>
+          <Text style={{color: '#e9e9e9'}}>Nenhum repositório encontrado.</Text>
+        </View>
+      )}
+
       <FlatList
         style={styles.list}
         data={repositories}
@@ -165,7 +173,7 @@ export function Home() {
           <Repository
             data={item}
             onRefresh={() => handleRefreshRepository(item)}
-            onRemove={() => handleRemoveRepository(item)}
+            onRemove={() => {}}
           />
         )}
         showsVerticalScrollIndicator={false}
